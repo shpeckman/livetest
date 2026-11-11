@@ -1,12 +1,15 @@
 name: livetest
 version: 0.1.0
 
+description: Live-testing harness for GUI apps on KDE Plasma, in a nested sway or offscreen.
+
 authors:
   - shpeckman
 
-description: |
-  Live-testing harness
-
 crystal: ">= 1.22.0"
+
+libraries:
+  libxkbcommon: "*"
+  libwayland-client: "*"
 
 license: MIT
