@@ -1,0 +1,12 @@
+name: livetest
+version: 0.1.0
+
+authors:
+  - shpeckman
+
+description: |
+  Live-testing harness
+
+crystal: ">= 1.22.0"
+
+license: MIT
