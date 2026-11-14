@@ -60,7 +60,9 @@ make clean      rm -rf lib shard.lock docs
 ## Modes
 
 - `kde`: takes over the real keyboard and pointer: never run unasked.
-  KWin places and screenshots, input through uinput. Escape three times
+  KWin places and screenshots, input through uinput. ScreenShot2 keeps
+  the window's alpha (usually premultiplied); `Screenshot.decode`
+  composites over black to match grim's opaque output captures. Escape three times
   within a second aborts. A KWin script reports activations; each key
   press checks the case's window is active, else fails the case.
   wl-clipboard < 2.3.0 steals focus; clipboard steps give it back.

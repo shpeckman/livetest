@@ -23,8 +23,14 @@ module Livetest::Screenshot
   private FORMAT_RGBA64_PRE   = 27
   private FORMAT_BGR888       = 29
 
+  # The formats whose color is not premultiplied by alpha.
+  private STRAIGHT_ALPHA = {FORMAT_ARGB32, FORMAT_RGBA8888, FORMAT_RGBA64}
+
   # Returns the client area of the window with KWin internal id *handle*,
-  # without decoration, shadow or cursor, at native resolution.
+  # without decoration, shadow or cursor, at native resolution, composited
+  # over black. A window capture keeps the window's alpha, while grim
+  # captures the composited output; compositing makes both modes match the
+  # same goldens.
   def self.window(bus : DBus, handle : String, timeout : Time::Span = 5.seconds) : Image
     options = {
       "include-decoration" => false.as(DBus::Value),
@@ -88,10 +94,13 @@ module Livetest::Screenshot
                      else
                        raise Error.new("unsupported screenshot format #{format}")
                      end
+        if a < 255 && STRAIGHT_ALPHA.includes?(format)
+          r, g, b = {r, g, b}.map { |c| (c.to_u32 * a // 255).to_u8 }
+        end
         dst[o] = r
         dst[o + 1] = g
         dst[o + 2] = b
-        dst[o + 3] = a
+        dst[o + 3] = 255_u8
       end
     end
     image

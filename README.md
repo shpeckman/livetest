@@ -12,7 +12,8 @@ covers terminal emulators.
 | `offscreen`     | the app's worker on a headless display       | framebuffer      |
 
 `kde` mode **takes over your keyboard and pointer**; press Escape three
-times within a second to abort. The modes share the goldens.
+times within a second to abort. The modes share the goldens: shots are
+opaque, with a translucent window composited over black.
 
 ## Requirements
 
