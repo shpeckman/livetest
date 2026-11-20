@@ -51,6 +51,34 @@ class Livetest::Image
     dst
   end
 
+  # Composites *top*, premultiplied like this image, over it with its
+  # top left corner at *x*, *y*; the part outside is dropped.
+  def over(top : Image, x : Int32, y : Int32) : self
+    x0 = x.clamp(0, width)
+    x1 = (x + top.width).clamp(x0, width)
+    y0 = y.clamp(0, height)
+    y1 = (y + top.height).clamp(y0, height)
+    src = top.pixels
+    (y0...y1).each do |dy|
+      (x0...x1).each do |dx|
+        s = ((dy - y) * top.width + dx - x) * 4
+        d = (dy * width + dx) * 4
+        keep = 255 - src[s + 3].to_i32
+        4.times do |c|
+          @pixels[d + c] = (src[s + c].to_i32 + (@pixels[d + c].to_i32 * keep + 127) // 255).clamp(0, 255).to_u8
+        end
+      end
+    end
+    self
+  end
+
+  # Makes every pixel opaque, which composites a premultiplied image over
+  # black.
+  def opaque! : self
+    (3...@pixels.size).step(4) { |i| @pixels[i] = 255_u8 }
+    self
+  end
+
   # Compares with *expected*: a pixel differs when a channel differs by more
   # than *tolerance*; pixels inside *masks* are ignored.
   def compare(expected : Image, tolerance : Int32 = 0, masks : Array(Rect) = [] of Rect) : Comparison

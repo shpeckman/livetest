@@ -47,4 +47,17 @@ describe Livetest::Image do
     {c.width, c.height}.should eq({4, 2})
     c.pixels[0, 4].should eq(img.pixels[(3 * 8 + 2) * 4, 4])
   end
+  it "composites a premultiplied image over it, clipped" do
+    base = Livetest::Image.new(3, 1, Bytes[100, 100, 100, 255, 0, 0, 0, 0, 10, 20, 30, 128])
+    top = Livetest::Image.new(2, 1, Bytes[50, 0, 0, 128, 200, 200, 200, 255])
+    base.over(top, 1, 0).pixels.should eq(Bytes[100, 100, 100, 255, 50, 0, 0, 128, 200, 200, 200, 255])
+    base.over(top, -1, 0).pixels[0, 4].should eq(Bytes[200, 200, 200, 255])
+    base.over(top, 3, 0).pixels[8, 4].should eq(Bytes[200, 200, 200, 255])
+    half = Livetest::Image.new(1, 1, Bytes[50, 0, 0, 128])
+    Livetest::Image.new(1, 1, Bytes[100, 100, 100, 255]).over(half, 0, 0).pixels.should eq(Bytes[100, 50, 50, 255])
+  end
+
+  it "makes every pixel opaque" do
+    Livetest::Image.new(2, 1, Bytes[1, 2, 3, 0, 4, 5, 6, 9]).opaque!.pixels.should eq(Bytes[1, 2, 3, 255, 4, 5, 6, 255])
+  end
 end

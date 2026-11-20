@@ -5,11 +5,11 @@ drives it with keyboard and pointer input, screenshots its window and
 compares the shots with golden PNGs. A built-in `Livetest::Terminal`
 covers terminal emulators.
 
-| Mode (`-m`)     | Where the app runs                           | Screenshots      |
-|-----------------|----------------------------------------------|------------------|
-| `kde` (default) | your KDE Plasma session                      | KWin ScreenShot2 |
-| `sway`          | a nested sway, headless or windowed (`-S`)   | `grim`           |
-| `offscreen`     | the app's worker on a headless display       | framebuffer      |
+| Mode (`-m`)     | Where the app runs                         | Screenshots      |
+|-----------------|--------------------------------------------|------------------|
+| `kde` (default) | your KDE Plasma session                    | KWin ScreenShot2 |
+| `sway`          | a nested sway, headless or windowed (`-S`) | `grim`           |
+| `offscreen`     | the app's worker on a headless display     | framebuffer      |
 
 `kde` mode **takes over your keyboard and pointer**; press Escape three
 times within a second to abort. The modes share the goldens: shots are
@@ -120,41 +120,41 @@ escapes below. Coordinates are logical pixels in the window's client
 area. Goldens live in `goldens/<case>/<shot>.png` next to the cases
 file.
 
-| Key                            | Meaning                                  | Default                   |
-|--------------------------------|------------------------------------------|---------------------------|
-| `at: X Y`                      | position of the client area              | `100 100`                 |
-| `timeout: SECONDS`             | limit for the whole case                 | `30`                      |
-| `modes: [MODE, …]`             | runs only in these modes                 | every mode                |
-| `steps: [STEP, …]`             | the steps below, in order                |                           |
+| Key                | Meaning                     | Default    |
+|--------------------|-----------------------------|------------|
+| `at: X Y`          | position of the client area | `100 100`  |
+| `timeout: SECONDS` | limit for the whole case    | `30`       |
+| `modes: [MODE, …]` | runs only in these modes    | every mode |
+| `steps: [STEP, …]` | the steps below, in order   |            |
 
 `Livetest::Terminal` adds:
 
-| Key                            | Meaning                                  | Default                   |
-|--------------------------------|------------------------------------------|---------------------------|
-| `size: COLSxROWS`              | terminal size                            | `80x24`                   |
-| `font: NAME`                   | font; a path with `/` is relative to the cases file | `Terminal#default_font` |
-| `run: COMMAND`                 | shell command (`sh -c`)                  | `exec sleep infinity`     |
+| Key               | Meaning                                             | Default                 |
+|-------------------|-----------------------------------------------------|-------------------------|
+| `size: COLSxROWS` | terminal size                                       | `80x24`                 |
+| `font: NAME`      | font; a path with `/` is relative to the cases file | `Terminal#default_font` |
+| `run: COMMAND`    | shell command (`sh -c`)                             | `exec sleep infinity`   |
 
-| Step                                  | Meaning                                              |
-|---------------------------------------|------------------------------------------------------|
-| `expect TEXT`                         | waits for the line TEXT on the FIFO                  |
-| `type TEXT`                           | types TEXT                                           |
-| `key COMBO...`                        | presses combinations: `ctrl+shift+c`, `Return`       |
-| `press KEY` / `release KEY`           | holds or releases a key                              |
-| `move X Y`                            | moves the pointer                                    |
-| `click [BUTTON] [COUNT]`              | clicks (`left`, `middle`, `right`; default `left 1`) |
-| `down [BUTTON]` / `up [BUTTON]`       | presses or releases a button                         |
-| `drag X1 Y1 X2 Y2 [BUTTON]`           | drags from the first point to the second             |
-| `scroll DY [DX]`                      | wheel clicks; positive is down or right              |
-| `sleep MS`                            | waits                                                |
-| `settle`                              | waits until the window stops changing                |
-| `shoot NAME [tolerance=N] [pixels=N] [mask=X,Y,W,H]...` | screenshots and compares with the golden |
-| `clipboard TEXT`                      | the clipboard equals TEXT within 3 s                 |
-| `copy TEXT`                           | puts TEXT on the clipboard                           |
-| `resize WIDTH HEIGHT`                 | resizes the client area                              |
-| `title TEXT`                          | the window title equals TEXT within 3 s              |
-| `close`                               | closes the window; the app must exit                 |
-| `exit [CODE]`                         | the app exits, optionally with status CODE           |
+| Step                                                    | Meaning                                              |
+|---------------------------------------------------------|------------------------------------------------------|
+| `expect TEXT`                                           | waits for the line TEXT on the FIFO                  |
+| `type TEXT`                                             | types TEXT                                           |
+| `key COMBO...`                                          | presses combinations: `ctrl+shift+c`, `Return`       |
+| `press KEY` / `release KEY`                             | holds or releases a key                              |
+| `move X Y`                                              | moves the pointer                                    |
+| `click [BUTTON] [COUNT]`                                | clicks (`left`, `middle`, `right`; default `left 1`) |
+| `down [BUTTON]` / `up [BUTTON]`                         | presses or releases a button                         |
+| `drag X1 Y1 X2 Y2 [BUTTON]`                             | drags from the first point to the second             |
+| `scroll DY [DX]`                                        | wheel clicks; positive is down or right              |
+| `sleep MS`                                              | waits                                                |
+| `settle`                                                | waits until the window stops changing                |
+| `shoot NAME [tolerance=N] [pixels=N] [mask=X,Y,W,H]...` | screenshots and compares with the golden             |
+| `clipboard TEXT`                                        | the clipboard equals TEXT within 3 s                 |
+| `copy TEXT`                                             | puts TEXT on the clipboard                           |
+| `resize WIDTH HEIGHT`                                   | resizes the client area                              |
+| `title TEXT`                                            | the window title equals TEXT within 3 s              |
+| `close`                                                 | closes the window; the app must exit                 |
+| `exit [CODE]`                                           | the app exits, optionally with status CODE           |
 
 Text arguments decode `\n`, `\r`, `\t`, `\e`, `\s`, `\\`, `\xHH` and
 `\u{H...}`.

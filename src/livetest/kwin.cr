@@ -11,8 +11,10 @@ class Livetest::KWin
   class Error < Exception
   end
 
-  # A window as KWin reports it; *frame* includes decorations, *client* not.
-  record Window, id : String, caption : String, pid : Int64, frame : Rect, client : Rect, active : Bool
+  # A window as KWin reports it; *frame* includes decorations, *client* not,
+  # *buffer* is its surface including client-side shadows.
+  record Window, id : String, caption : String, pid : Int64, frame : Rect, client : Rect, buffer : Rect,
+    active : Bool
 
   private SERVICE   = "org.kde.KWin"
   private INTERFACE = "org.livetest.Harness"
@@ -143,7 +145,8 @@ class Livetest::KWin
       }
       function info(w) {
         return {id: String(w.internalId), caption: String(w.caption), pid: w.pid,
-                frame: rect(w.frameGeometry), client: rect(w.clientGeometry), active: w.active};
+                frame: rect(w.frameGeometry), client: rect(w.clientGeometry), buffer: rect(w.bufferGeometry),
+                active: w.active};
       }
       var out;
       try { var v = (function () { #{body} })(); out = {value: v === undefined ? null : v}; }
@@ -158,6 +161,23 @@ class Livetest::KWin
   def window(cls : String) : Window?
     v = eval("var w = find(#{cls.to_json}); return w ? info(w) : null;")
     v.raw.nil? ? nil : parse_window(v)
+  end
+
+  # Returns the windows transient for the window with internal id *id*,
+  # directly or through others (popup menus and their submenus), parents
+  # before their children.
+  def popups(id : String) : Array(Window)
+    v = eval(<<-JS)
+      var list = workspace.windowList(), out = [];
+      for (var i = 0; i < list.length; i++) {
+        var depth = 0, p = list[i].transientFor;
+        while (p && String(p.internalId) != #{id.to_json}) { p = p.transientFor; depth++; }
+        if (p) out.push({depth: depth, window: info(list[i])});
+      }
+      out.sort(function (a, b) { return a.depth - b.depth; });
+      return out.map(function (e) { return e.window; });
+      JS
+    v.as_a.map { |w| parse_window(w) }
   end
 
   # Polls for the window of *cls* until *timeout*.
@@ -225,7 +245,7 @@ class Livetest::KWin
 
   private def parse_window(v : JSON::Any) : Window
     Window.new(v["id"].as_s, v["caption"].as_s, number(v["pid"]).to_i64,
-      parse_rect(v["frame"]), parse_rect(v["client"]), v["active"].as_bool)
+      parse_rect(v["frame"]), parse_rect(v["client"]), parse_rect(v["buffer"]), v["active"].as_bool)
   end
 
   private def parse_rect(v : JSON::Any) : Rect

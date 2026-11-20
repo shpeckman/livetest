@@ -2,7 +2,7 @@ require "./dbus"
 require "./image"
 
 # :nodoc:
-# Captures one window through KWin's `org.kde.KWin.ScreenShot2`. KWin only
+# Captures a window and its popups through KWin's `org.kde.KWin.ScreenShot2`. KWin only
 # answers executables listed in a desktop file with
 # `X-KDE-DBUS-Restricted-Interfaces=org.kde.KWin.ScreenShot2`; see
 # `Livetest::Setup`.
@@ -28,13 +28,29 @@ module Livetest::Screenshot
 
   # Returns the client area of the window with KWin internal id *handle*,
   # without decoration, shadow or cursor, at native resolution, composited
-  # over black. A window capture keeps the window's alpha, while grim
-  # captures the composited output; compositing makes both modes match the
-  # same goldens.
-  def self.window(bus : DBus, handle : String, timeout : Time::Span = 5.seconds) : Image
+  # over black. Each of *popups* (KWin internal id and buffer area in
+  # global logical coordinates, bottom first) is captured with its
+  # client-side shadow and composited over it at its place relative to
+  # *client*, the window's client area: KWin captures a window without its
+  # popup windows, while grim captures the composited output; compositing
+  # makes both modes match the same goldens.
+  def self.window(bus : DBus, handle : String, client : Rect, popups : Array({String, Rect}) = [] of {String, Rect},
+                  timeout : Time::Span = 5.seconds) : Image
+    image = capture(bus, handle, false, timeout)
+    scale = client.width > 0 ? image.width / client.width : 1.0
+    popups.each do |(id, rect)|
+      image.over(capture(bus, id, true, timeout), ((rect.x - client.x) * scale).round.to_i32,
+        ((rect.y - client.y) * scale).round.to_i32)
+    end
+    image.opaque!
+  end
+
+  # Returns the client area of the window with KWin internal id *handle*,
+  # or its whole buffer with *shadow*, with premultiplied alpha.
+  private def self.capture(bus : DBus, handle : String, shadow : Bool, timeout : Time::Span) : Image
     options = {
       "include-decoration" => false.as(DBus::Value),
-      "include-shadow"     => false.as(DBus::Value),
+      "include-shadow"     => shadow.as(DBus::Value),
       "include-cursor"     => false.as(DBus::Value),
       "native-resolution"  => true.as(DBus::Value),
     } of String => DBus::Value
@@ -100,7 +116,7 @@ module Livetest::Screenshot
         dst[o] = r
         dst[o + 1] = g
         dst[o + 2] = b
-        dst[o + 3] = 255_u8
+        dst[o + 3] = a
       end
     end
     image

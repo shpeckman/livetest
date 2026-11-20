@@ -61,7 +61,8 @@ class Livetest::Backends::KDE < Livetest::Backend
   end
 
   def shot : Image
-    Screenshot.window(@bus, @handle)
+    popups = @kwin.popups(@handle).map { |w| {w.id, w.buffer} }
+    Screenshot.window(@bus, @handle, @client, popups)
   end
 
   def resize(width : Int32, height : Int32) : Nil
