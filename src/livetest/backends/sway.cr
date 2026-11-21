@@ -96,6 +96,9 @@ class Livetest::Backends::Sway < Livetest::Backend
       io << "default_border none\ndefault_floating_border none\nfocus_follows_mouse no\n"
       io << "mouse_warping none\nfloating_maximum_size -1 x -1\nxwayland disable\n"
       io << "for_window [app_id=\"^livetest-\"] floating enable\n"
+      # sway only marks a window urgent when the app asks to activate it;
+      # desktops give it the focus, which cases switching windows rely on.
+      io << "focus_on_window_activation focus\n"
       io << "seat * xcursor_theme " << CURSOR_THEME << " 24\n"
       if show
         # the host's devices get their own seat, so they cannot disturb a case
