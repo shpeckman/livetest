@@ -109,7 +109,7 @@ class Livetest::Backends::Sway < Livetest::Backend
   end
 
   def tool_env : Hash(String, String?)
-    {"WAYLAND_DISPLAY" => @socket, "DISPLAY" => nil} of String => String?
+    {"WAYLAND_DISPLAY" => @socket, "SWAYSOCK" => @ipc_path, "DISPLAY" => nil} of String => String?
   end
 
   def open(app : App, test : Case, timeout : Time::Span) : Nil

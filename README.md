@@ -94,7 +94,9 @@ screenshots in `kde` mode; run it once per executable path.
 
 The app gets `LIVETEST_FIFO`, a FIFO its commands signal the harness
 through (`echo LINE > "$LIVETEST_FIFO"`, awaited by `expect LINE`), and
-`LIVETEST_DIR`, the case's output directory.
+`LIVETEST_DIR`, the case's output directory. In mode `sway` it also gets
+`SWAYSOCK`, the nested sway's: a case's command can ask it for the
+window's state (`swaymsg -t get_tree`).
 
 ## Offscreen worker
 
